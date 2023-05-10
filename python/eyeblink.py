@@ -17,17 +17,37 @@ if esp.handshake():
 else:
     print(" Not Connected")
 
-import mailtrap as mt
-
+# import mailtrap as mt
 # create mail object
-mail = mt.Mail(
-    sender=mt.Address(email="projectalert@autobonics.com", name="Vehicle"),
-    to=[mt.Address(email="ajaiathul07@gmail.com")],
-    subject="Alert",
-    text="Driver sleeping",
-)
+# mail = mt.Mail(
+#     sender=mt.Address(email="projectalert@autobonics.com", name="Vehicle"),
+#     to=[mt.Address(email="mohdazharsm@gmail.com")],
+#     subject="Alert",
+#     text="Driver sleeping",
+# )
 
-client = mt.MailtrapClient(token="11d2d4242807e7a724e9e2948596cc44")
+# client = mt.MailtrapClient(token="11d2d4242807e7a724e9e2948596cc44")
+
+#Firebase
+from firebase import CloudData  
+cloud = CloudData("devices/bnkQpCxWeAOTBl5FTFduISW6eUd2/")
+
+def on_value_changed(event):
+    print('Path:', event.path)
+    print('Value changed:', event.data)
+
+cloud.set_listener(on_value_changed)
+
+def _readTiltAndUpdate():
+    inputData = get_value(esp)
+    # print("Input data type:", type(inputData))
+    if(inputData > 1200 and inputData < 1300):
+        print("Tilt!")
+        print(inputData)
+        cloud.uploadTilt(True)
+    else:
+        cloud.uploadTilt(False)
+
 
 def _calc_EAR(lmk):
     # EAR Algorithm
@@ -50,6 +70,7 @@ def main():
         min_tracking_confidence=0.5
     ) as face_mesh:
         while cap.isOpened():
+            _readTiltAndUpdate()
             response, image = cap.read()
             if not response:
                 # print("End of vid")
@@ -96,11 +117,12 @@ def main():
                 
                 if EAR < 0.2 and connected:
                     esp.sendAlertOn()
-                    inputData = get_value(esp)
-                    print(inputData)
+                    print("Alert")
+                    cloud.uploadSleeping(True)
                     # client.send(mail)
                 else:
                     esp.sendAlertOff()
+                    cloud.uploadSleeping(False)
 
 
                 image = cv2.putText(image, f"state: {drowzy_state}", (0, 250),
@@ -110,6 +132,8 @@ def main():
                 break
         cap.release()
         cv2.destroyAllWindows()
+
+
 
 
 if __name__ == "__main__":

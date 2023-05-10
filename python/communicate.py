@@ -17,12 +17,14 @@ class Communicate:
 
     def get_str_list(self):
         str = self.get_str()
-        return str.split("-")[:-1]
+        return str #.split("-")[:-1]
 
     def get_int_list(self):
-        list = self.get_str_list()
+        # list = self.get_str_list()
+        val = self.get_str_list()
         try:
-            return [int(val) for val in list]
+            # return [int(val) for val in list]
+            return int(val)
         except ValueError:
             pass
 
@@ -98,6 +100,8 @@ class Communicate:
 
 def get_value(obj):
     obj.sent_get_request()
-    List = obj.get_int_list()
+    # List = obj.get_int_list()
+    value = obj.get_int_list()
     obj.reset()
-    return List
+    # return List
+    return value
