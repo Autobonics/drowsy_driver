@@ -15,9 +15,10 @@ class CloudData:
         )
         self.ref = db.reference(reference)
 
-    def uploadTilt(self, isTilt):
+    def uploadTilt(self, isTilt, time):
         data = {
-            "isTilt": isTilt
+            "isTilt": isTilt,
+            "ts": time
         }
         # self.ref.set(data)
         self.ref.child('reading').update(data)

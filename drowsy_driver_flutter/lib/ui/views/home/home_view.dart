@@ -19,7 +19,7 @@ class HomeView extends StatelessWidget {
         // print(model.node?.lastSeen);
         return Scaffold(
             appBar: AppBar(
-              title: const Text('Vehicle tracker'),
+              title: const Text('Drowsy driver'),
               centerTitle: true,
               actions: [IsOnlineWidget()],
             ),
@@ -48,12 +48,6 @@ class _HomeBody extends ViewModelWidget<HomeViewModel> {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(18.0),
-                    child: Text("Distance: ${model.data!.distance}"),
-                  ),
-                ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(18.0),
                     child: Text("Is tilt: ${model.data!.isTilt}"),
                   ),
                 ),
@@ -69,16 +63,16 @@ class _HomeBody extends ViewModelWidget<HomeViewModel> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextButton(
-                        onPressed: model.setServo1,
+                        onPressed: model.setStepper,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.teal,
+                            color: Colors.red,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(14.0),
                             child: Text(
-                              "${model.deviceData.servo1 == model.servoMinAngle ? "Open" : "Close"} Box1",
+                              "${!model.deviceData.isStepper ? "Run stepper" : "Stop stepper"}",
                               style: const TextStyle(
                                 color: Colors.white,
                               ),
@@ -86,34 +80,34 @@ class _HomeBody extends ViewModelWidget<HomeViewModel> {
                           ),
                         ),
                       ),
-                      TextButton(
-                        onPressed: model.setServo2,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.teal,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(14.0),
-                            child: Text(
-                              "${model.deviceData.servo2 == model.servoMinAngle ? "Open" : "Close"} Box2",
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // TextButton(
+                      //   onPressed: model.setAlert,
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.teal,
+                      //       borderRadius: BorderRadius.circular(10),
+                      //     ),
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(14.0),
+                      //       child: Text(
+                      //         "${model.deviceData.isAlert == model.servoMinAngle ? "Open" : "Close"} Box2",
+                      //         style: const TextStyle(
+                      //           color: Colors.white,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
                 Slider(
-                  value: model.deviceData.servo3.toDouble(),
-                  min: 0,
-                  max: 180,
-                  divisions: 8,
-                  label: model.deviceData.servo3.round().toString(),
-                  onChanged: model.setServo3,
+                  value: model.deviceData.speed.toDouble(),
+                  min: 1,
+                  max: 5,
+                  divisions: 5,
+                  label: model.deviceData.speed.round().toString(),
+                  onChanged: model.setSpeed,
                   onChangeEnd: (value) {
                     model.setDeviceData();
                   },
@@ -122,11 +116,6 @@ class _HomeBody extends ViewModelWidget<HomeViewModel> {
             ),
           ),
         ),
-        if (model.data!.distance < 30)
-          Positioned.fill(
-              child: Warning(
-            message: 'Head or Hand detected outside',
-          )),
         if (model.data!.isTilt)
           Positioned.fill(
               child: Warning(

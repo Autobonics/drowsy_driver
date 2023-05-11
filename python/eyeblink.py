@@ -35,18 +35,47 @@ cloud = CloudData("devices/bnkQpCxWeAOTBl5FTFduISW6eUd2/")
 def on_value_changed(event):
     print('Path:', event.path)
     print('Value changed:', event.data)
+    # isAlert = event.data['isAlert']
+    if ("speed" in event.data) and (event.data['speed'] != None):
+        speed = event.data['speed']
+        print(speed)
+        if(speed == 1):
+            esp.speed1()
+        elif(speed == 2):
+            esp.speed2()
+        elif(speed == 3):
+            esp.speed3()
+        elif(speed == 4):
+            esp.speed4()
+        elif(speed == 5):
+            esp.speed5()
+    if ("isStepper" in event.data) and (event.data['isStepper'] != None):
+        isStepper = event.data['isStepper']
+        print(isStepper)
+        if isStepper:
+            esp.rotate()
+        else:
+            esp.stop()
 
 cloud.set_listener(on_value_changed)
 
+
+current_time = 0
+tiltUpdated = False
+
+
 def _readTiltAndUpdate():
+    global current_time
+    global tiltUpdated
     inputData = get_value(esp)
     # print("Input data type:", type(inputData))
-    if(inputData > 1200 and inputData < 1300):
-        print("Tilt!")
+    isTilt = inputData!= None and inputData == 0
+    if( (isTilt != tiltUpdated) or (int(time.time() * 1000) - current_time > 3000)):
+        tiltUpdated = isTilt
+        current_time = int(time.time() * 1000)
+        print("Update!")
         print(inputData)
-        cloud.uploadTilt(True)
-    else:
-        cloud.uploadTilt(False)
+        cloud.uploadTilt(isTilt, current_time)
 
 
 def _calc_EAR(lmk):
@@ -115,7 +144,7 @@ def main():
                 image = cv2.flip(image, 1)
                 drowzy_state = "drowzy" if EAR < 0.2 else "active"
                 
-                if EAR < 0.2 and connected:
+                if EAR < 0.2:
                     esp.sendAlertOn()
                     print("Alert")
                     cloud.uploadSleeping(True)

@@ -23,41 +23,27 @@ class HomeViewModel extends ReactiveViewModel {
     getDeviceData();
   }
 
-  final int _servoMinAngle = 50;
-  int get servoMinAngle => _servoMinAngle;
-  final int _servoMaxAngle = 140;
-  int get servoMaxAngle => _servoMaxAngle;
-
   DeviceData _deviceData = DeviceData(
-    servo1: 40,
-    servo2: 40,
-    servo3: 90,
-    isReadSensor: false,
+    isStepper: false,
+    isAlert: false,
+    speed: 1,
   );
   DeviceData get deviceData => _deviceData;
 
-  void setServo1() {
-    if (_deviceData.servo1 == _servoMinAngle) {
-      _deviceData.servo1 = servoMaxAngle;
-    } else {
-      _deviceData.servo1 = _servoMinAngle;
-    }
+  void setStepper() {
+    _deviceData.isStepper = !_deviceData.isStepper;
     setDeviceData();
     notifyListeners();
   }
 
-  void setServo2() {
-    if (_deviceData.servo2 == _servoMinAngle) {
-      _deviceData.servo2 = servoMaxAngle;
-    } else {
-      _deviceData.servo2 = _servoMinAngle;
-    }
+  void setAlert() {
+    _deviceData.isAlert = !_deviceData.isAlert;
     setDeviceData();
     notifyListeners();
   }
 
-  void setServo3(double value) {
-    _deviceData.servo3 = value.toInt();
+  void setSpeed(double value) {
+    _deviceData.speed = value.toInt();
     notifyListeners();
     // setDeviceData();
   }
@@ -71,10 +57,9 @@ class HomeViewModel extends ReactiveViewModel {
     DeviceData? deviceData = await _dbService.getDeviceData();
     if (deviceData != null) {
       _deviceData = DeviceData(
-          servo1: deviceData.servo1,
-          servo2: deviceData.servo2,
-          servo3: deviceData.servo3,
-          isReadSensor: deviceData.isReadSensor);
+          isStepper: deviceData.isStepper,
+          isAlert: deviceData.isAlert,
+          speed: deviceData.speed);
     }
     setBusy(false);
   }

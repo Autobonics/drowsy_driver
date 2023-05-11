@@ -1,13 +1,13 @@
 const int DIR = 12;
 const int STEP = 14;
-const int  steps_per_rev = 200;
+// const int  steps_per_rev = 200;
 
 char inByte = '0';
 
-#define led 34
+#define led 32
 #define relay 27
 
-int tiltPin = 13;
+int tiltPin = 34;
 int tiltValue = 0;
 
 void setup() {
@@ -76,9 +76,9 @@ void establishContact() {
 void runStepper(){
   if(isStepperRotate){
     digitalWrite(STEP, HIGH);
-    delayMicroseconds(200);
+    delayMicroseconds(stepperSpeed);
     digitalWrite(STEP, LOW);
-    delayMicroseconds(200);
+    delayMicroseconds(stepperSpeed);
   }
 }
 
