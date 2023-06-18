@@ -18,7 +18,7 @@ else:
     print(" Not Connected")
 
 # import mailtrap as mt
-# create mail object
+# # create mail object
 # mail = mt.Mail(
 #     sender=mt.Address(email="projectalert@autobonics.com", name="Vehicle"),
 #     to=[mt.Address(email="mohdazharsm@gmail.com")],
@@ -73,8 +73,8 @@ def _readTiltAndUpdate():
     if( (isTilt != tiltUpdated) or (int(time.time() * 1000) - current_time > 3000)):
         tiltUpdated = isTilt
         current_time = int(time.time() * 1000)
-        print("Update!")
-        print(inputData)
+        # print("Update!")
+        # print(inputData)
         cloud.uploadTilt(isTilt, current_time)
 
 
@@ -85,6 +85,49 @@ def _calc_EAR(lmk):
     # || => l2 norm
     [p1, p2, p3, p4, p5, p6] = lmk
     return (np.linalg.norm(p2-p6)+np.linalg.norm(p3-p5))/(2*np.linalg.norm(p1-p4))
+
+
+isSleep = False
+t1 = 0
+t2 = 0
+diff = 0
+def _setStepper():
+    global t1
+    global t2
+    global diff
+    if(isSleep):
+        t2 = time.time()
+        diff = t2 - t1
+        print(diff)
+        #alarm condition - normal - 2
+        if diff > 12:
+            esp.sendAlertOff()
+        else:
+            esp.sendAlertOn()
+        #Stepper condition
+        if(diff>2 and diff < 12):
+            esp.rotate()
+        else:
+            esp.stop()
+    else:
+        t1 = time.time()
+        esp.sendAlertOff()
+        if(diff>0):
+            diff2 = t1 - t2
+            # td = diff - diff2
+            print("diff2: ", diff2)
+            print("diff: ", diff)
+            if(diff2 >= diff):
+                esp.stop()
+                print("stop")
+                diff = 0
+            elif diff2>2 and diff2<12:   
+                esp.reverse()
+                print("reverse")
+
+
+        
+
 
 
 def main():
@@ -143,14 +186,16 @@ def main():
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 image = cv2.flip(image, 1)
                 drowzy_state = "drowzy" if EAR < 0.2 else "active"
+
+                global isSleep
+                _setStepper()
                 
                 if EAR < 0.2:
-                    esp.sendAlertOn()
-                    print("Alert")
+                    isSleep = True
                     cloud.uploadSleeping(True)
                     # client.send(mail)
                 else:
-                    esp.sendAlertOff()
+                    isSleep = False
                     cloud.uploadSleeping(False)
 
 

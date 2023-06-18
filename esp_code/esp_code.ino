@@ -38,7 +38,8 @@ void loop() {
   if (Serial.available() > 0){
     inByte = Serial.read();
     if(inByte == 't'){sent_data();}
-    if(inByte == 'r'){isStepperRotate = true;}
+    if(inByte == 'r'){isStepperRotate = true; digitalWrite(DIR, HIGH);}
+    if(inByte == 'q'){isStepperRotate = true; digitalWrite(DIR, LOW);}
     if(inByte == 's'){isStepperRotate = false;}
     if(inByte == '1'){stepperSpeed = speeds[0];}
     if(inByte == '2'){stepperSpeed = speeds[1];}
@@ -75,10 +76,12 @@ void establishContact() {
 
 void runStepper(){
   if(isStepperRotate){
+    for(int i = 0; i<100; i++){
     digitalWrite(STEP, HIGH);
-    delayMicroseconds(stepperSpeed);
+    delayMicroseconds(1000);//stepperSpeed
     digitalWrite(STEP, LOW);
-    delayMicroseconds(stepperSpeed);
+    delayMicroseconds(1000);
+    }
   }
 }
 

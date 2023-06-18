@@ -53,6 +53,9 @@ class Communicate:
     def rotate(self):
         self.obj.write(b"r")
 
+    def reverse(self):
+        self.obj.write(b"q")
+
     def stop(self):
         self.obj.write(b"s")
 
